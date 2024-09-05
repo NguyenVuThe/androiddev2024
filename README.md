@@ -12,5 +12,5 @@ Student Info
 
 * Name: Vũ Thế Khôi Nguyên
 * ID: 22BI13344
-* Group ID: *Your Group ID here*
-* Project Name: *Your Project Name here*
+* Group ID: *1*
+* Project Name: *GrabFood-like Client*

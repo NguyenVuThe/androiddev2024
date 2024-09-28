@@ -6,7 +6,7 @@
     android:layout_height="wrap_content"
     tools:context=".WeatherFragment"
     android:padding="20dp"
-    android:background="#8BFF8B">
+    android:background="@drawable/frame">
 
     <TextView
         android:id="@+id/temp"

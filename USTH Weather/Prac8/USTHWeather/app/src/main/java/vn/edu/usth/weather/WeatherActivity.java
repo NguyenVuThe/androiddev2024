@@ -1,5 +1,6 @@
 package vn.edu.usth.weather;
 
+import android.media.MediaPlayer;
 import android.os.Bundle;
 import android.util.Log;
 
@@ -42,6 +43,9 @@ public class WeatherActivity extends AppCompatActivity {
                     break;
             }
         }).attach();
+
+        MediaPlayer music = MediaPlayer.create(WeatherActivity.this, R.raw.music);
+        music.start();
     }
 
     @Override

@@ -3,6 +3,8 @@ package vn.edu.usth.weather;
 import android.content.Intent;
 import android.media.MediaPlayer;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Looper;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -19,6 +21,8 @@ import com.google.android.material.tabs.TabLayoutMediator;
 
 public class WeatherActivity extends AppCompatActivity {
     private static final String TAG = "Weather";
+
+    private Handler handler = new Handler(Looper.getMainLooper());
 
     private String[] cities = {"Hanoi", "Paris", "Toulouse"};
     private int[] weatherIcons = {R.drawable.cloudy, R.drawable.partly_cloudy, R.drawable.cloudy};
@@ -69,15 +73,32 @@ public class WeatherActivity extends AppCompatActivity {
             this.startActivity(intent);
             return true;
         } else if(item.getItemId() == R.id.action_refresh) {
-            CharSequence text = "Hello toast!";
-            int duration = Toast.LENGTH_SHORT;
-
-            Toast toast = Toast.makeText(this, text, duration);
-            toast.show();
+            notification();
             return true;
         } else {
             return super.onOptionsItemSelected(item);
         }
+    }
+
+    public void notification() {
+        Thread backThread = new Thread(new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    Thread.sleep(2000);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+
+                handler.post(new Runnable() {
+                    @Override
+                    public void run() {
+                        Toast.makeText(WeatherActivity.this, "Refresh from Another Thread.", Toast.LENGTH_SHORT).show();
+                    }
+                });
+            }
+        });
+        backThread.start();
     }
 
 

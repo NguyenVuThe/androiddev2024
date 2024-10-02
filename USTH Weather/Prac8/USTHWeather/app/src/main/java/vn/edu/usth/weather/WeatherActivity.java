@@ -5,6 +5,7 @@ import android.media.MediaPlayer;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
+import android.os.Message;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -22,10 +23,12 @@ import com.google.android.material.tabs.TabLayoutMediator;
 public class WeatherActivity extends AppCompatActivity {
     private static final String TAG = "Weather";
 
-    private Handler handler = new Handler(Looper.getMainLooper());
+    private Handler handler;
 
     private String[] cities = {"Hanoi", "Paris", "Toulouse"};
     private int[] weatherIcons = {R.drawable.cloudy, R.drawable.partly_cloudy, R.drawable.cloudy};
+
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -33,6 +36,14 @@ public class WeatherActivity extends AppCompatActivity {
 //        EdgeToEdge.enable(this);
         setContentView(R.layout.activity_weather);
         Log.i(TAG, "Create");
+
+        handler = new Handler(Looper.getMainLooper()) {
+            @Override
+            public void handleMessage(Message msg) {
+                String content = msg.getData().getString("server-response");
+                Toast.makeText(WeatherActivity.this, content, Toast.LENGTH_LONG).show();
+            }
+        };
 
         Toolbar myToolbar = (Toolbar) findViewById(R.id.my_toolbar);
         setSupportActionBar(myToolbar);
@@ -90,12 +101,14 @@ public class WeatherActivity extends AppCompatActivity {
                     e.printStackTrace();
                 }
 
-                handler.post(new Runnable() {
-                    @Override
-                    public void run() {
-                        Toast.makeText(WeatherActivity.this, "Refresh from Another Thread.", Toast.LENGTH_SHORT).show();
-                    }
-                });
+                Bundle bundle = new Bundle();
+                bundle.putString("server-response", "From another Thread");
+
+                Message msg = new Message();
+                msg.setData(bundle);
+                handler.sendMessage(msg);
+
+
             }
         });
         backThread.start();

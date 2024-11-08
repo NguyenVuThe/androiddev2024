@@ -2,6 +2,7 @@ package vn.edu.usth.weather;
 
 import android.content.Intent;
 import android.media.MediaPlayer;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
@@ -19,16 +20,18 @@ import androidx.viewpager2.widget.ViewPager2;
 import com.google.android.material.tabs.TabLayout;
 import com.google.android.material.tabs.TabLayoutMediator;
 
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+
 
 public class WeatherActivity extends AppCompatActivity {
     private static final String TAG = "Weather";
 
-    private Handler handler;
-
     private String[] cities = {"Hanoi", "Paris", "Toulouse"};
     private int[] weatherIcons = {R.drawable.cloudy, R.drawable.partly_cloudy, R.drawable.cloudy};
 
-
+    private ExecutorService executorService;
+    private Handler handler;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -36,14 +39,6 @@ public class WeatherActivity extends AppCompatActivity {
 //        EdgeToEdge.enable(this);
         setContentView(R.layout.activity_weather);
         Log.i(TAG, "Create");
-
-        handler = new Handler(Looper.getMainLooper()) {
-            @Override
-            public void handleMessage(Message msg) {
-                String content = msg.getData().getString("server-response");
-                Toast.makeText(WeatherActivity.this, content, Toast.LENGTH_LONG).show();
-            }
-        };
 
         Toolbar myToolbar = (Toolbar) findViewById(R.id.my_toolbar);
         setSupportActionBar(myToolbar);
@@ -69,6 +64,9 @@ public class WeatherActivity extends AppCompatActivity {
 
         MediaPlayer music = MediaPlayer.create(WeatherActivity.this, R.raw.music);
         music.start();
+
+        executorService = Executors.newSingleThreadExecutor();
+        handler = new Handler(Looper.getMainLooper());
     }
 
     @Override
@@ -84,36 +82,25 @@ public class WeatherActivity extends AppCompatActivity {
             this.startActivity(intent);
             return true;
         } else if(item.getItemId() == R.id.action_refresh) {
-            notification();
+            backgroundTask();
             return true;
         } else {
             return super.onOptionsItemSelected(item);
         }
     }
 
-    public void notification() {
-        Thread backThread = new Thread(new Runnable() {
-            @Override
-            public void run() {
-                try {
-                    Thread.sleep(2000);
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
-                }
-
-                Bundle bundle = new Bundle();
-                bundle.putString("server-response", "From another Thread");
-
-                Message msg = new Message();
-                msg.setData(bundle);
-                handler.sendMessage(msg);
-
-
+    private void backgroundTask() {
+        executorService.execute(() -> {
+            try {
+                Thread.sleep(1000);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
             }
+            handler.post(() ->
+                Toast.makeText(WeatherActivity.this, "From Background", Toast.LENGTH_LONG).show()
+            );
         });
-        backThread.start();
     }
-
 
     @Override
     protected void onStart()
